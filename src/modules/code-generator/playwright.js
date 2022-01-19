@@ -1,5 +1,5 @@
 import Block from '@/modules/code-generator/block'
-import { headlessActions } from '@/modules/code-generator/constants'
+import { headlessActions, eventsToRecord } from '@/modules/code-generator/constants'
 import BaseGenerator from '@/modules/code-generator/base-generator'
 
 const importPlaywright = `const { chromium } = require('playwright');\n`
@@ -34,6 +34,17 @@ export default class PlaywrightCodeGenerator extends BaseGenerator {
       type: headlessActions.VIEWPORT,
       value: `await ${this._frame}.setViewportSize({ width: ${width}, height: ${height} })`,
     })
+  }
+
+  _handleClick(selector, events, index) {
+    const block = super._handleClick(selector, events, index)
+    if (this._options.waitForNetworkIdleAfterClick) {
+      block.addLine({
+        type: eventsToRecord.CLICK,
+        value: `await page.waitForLoadState('networkidle')`,
+      })
+    }
+    return block
   }
 
   _handleChange(selector, value) {

@@ -84,7 +84,6 @@
           Add <code>waitForSelector</code> lines before every
           <code>page.click()</code>
         </Toggle>
-        <!-- TODO: Patched from https://github.com/RexSkz/headless-recorder/compare/main...UwSoftWare:await-network-after-click#diff-53c2041c5a87b1b74f6e34e5794e2774ba20516a3b47230d14d00d0b6e0eb200R87-R90 -->
         <Toggle v-model="options.code.waitForNetworkIdleAfterClick">
           Add <code>waitForNetwoorkIdle</code> lines after every <code>page.click()</code> or
           <code>page.goto()</code>
