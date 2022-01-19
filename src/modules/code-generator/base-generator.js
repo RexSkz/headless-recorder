@@ -6,6 +6,8 @@ export const defaults = {
   headless: true,
   waitForNavigation: true,
   waitForSelectorOnClick: true,
+  // TODO: Patched from https://github.com/RexSkz/headless-recorder/compare/main...UwSoftWare:await-network-after-click#diff-65e71fd55e20dbbed86374441613e73a6fab098d4b13ea02b056f3afdd4a11eaR9
+  waitForNetworkIdleAfterClick: true,
   blankLinesBetweenBlocks: true,
   dataAttribute: '',
   showPlaywrightFirst: true,
@@ -193,6 +195,13 @@ export default class BaseGenerator {
         value: `await ${this._frame}.click('${selector}')`,
       })
     }
+    // TODO: Patched from https://github.com/RexSkz/headless-recorder/compare/main...UwSoftWare:await-network-after-click#diff-65e71fd55e20dbbed86374441613e73a6fab098d4b13ea02b056f3afdd4a11eaR150-R155
+    if (this._options.waitForNetworkIdleAfterClick) {
+      block.addLine({
+        type: eventsToRecord.CLICK,
+        value: `await ${this._frame}.waitForNetworkIdle()`,
+      })
+    }
     return block
   }
 
@@ -203,11 +212,20 @@ export default class BaseGenerator {
     })
   }
 
+  // TODO: Patched from https://github.com/RexSkz/headless-recorder/compare/main...UwSoftWare:await-network-after-click#diff-65e71fd55e20dbbed86374441613e73a6fab098d4b13ea02b056f3afdd4a11eaR166-R179
   _handleGoto(href) {
-    return new Block(this._frameId, {
+    const block = new Block(this._frameId)
+    block.addLine({
       type: headlessActions.GOTO,
       value: `await ${this._frame}.goto('${href}')`,
     })
+    if (this._options.waitForNetworkIdleAfterClick) {
+      block.addLine({
+        type: eventsToRecord.CLICK,
+        value: `await ${this._frame}.waitForNetworkIdle()`,
+      })
+    }
+    return block
   }
 
   _handleViewport() {
