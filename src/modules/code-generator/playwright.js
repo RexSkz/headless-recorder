@@ -1,5 +1,5 @@
 import Block from '@/modules/code-generator/block'
-import { headlessActions } from '@/modules/code-generator/constants'
+import { headlessActions, eventsToRecord } from '@/modules/code-generator/constants'
 import BaseGenerator from '@/modules/code-generator/base-generator'
 
 const importPlaywright = `const { chromium } = require('playwright');\n`
@@ -36,10 +36,32 @@ export default class PlaywrightCodeGenerator extends BaseGenerator {
     })
   }
 
+  _handleClick(selector, events, index) {
+    const block = super._handleClick(selector, events, index)
+    if (this._options.waitForNetworkIdleAfterClick) {
+      block.addLine({
+        type: eventsToRecord.CLICK,
+        value: `await page.waitForLoadState('networkidle')`,
+      })
+    }
+    return block
+  }
+
   _handleChange(selector, value) {
     return new Block(this._frameId, {
       type: headlessActions.CHANGE,
       value: `await ${this._frame}.selectOption('${selector}', '${value}')`,
     })
+  }
+
+  _handleGoto(href) {
+    const block = super._handleGoto(href)
+    if (this._options.waitForNetworkIdleAfterClick) {
+      block.addLine({
+        type: eventsToRecord.CLICK,
+        value: `await page.waitForLoadState('networkidle')`,
+      })
+    }
+    return block
   }
 }
