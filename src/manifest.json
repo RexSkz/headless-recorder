@@ -5,10 +5,11 @@
   "description": "A Chrome extension for recording browser interaction and generating Puppeteer & Playwright scripts",
   "default_locale": "en",
   "permissions": [
-    "storage",
-    "webNavigation",
     "activeTab",
     "cookies",
+    "storage",
+    "tabs",
+    "webNavigation",
     "*://*/"
   ],
   "icons" : {

@@ -47,6 +47,8 @@ class Background {
     this._boundedMessageHandler = this.handleMessage.bind(this)
     this._boundedNavigationHandler = this.handleNavigation.bind(this)
     this._boundedWaitHandler = () => badge.wait()
+    this._boundedTabCreateHandler = this.handleTabCreate.bind(this)
+    this._boundedTabChangeHandler = this.handleTabChange.bind(this)
 
     this.overlayHandler = this.handleOverlayMessage.bind(this)
 
@@ -69,6 +71,9 @@ class Background {
     chrome.runtime.onMessage.addListener(this._boundedMessageHandler)
     chrome.runtime.onMessage.addListener(this.overlayHandler)
 
+    chrome.tabs.onCreated.addListener(this._boundedTabCreateHandler)
+    chrome.tabs.onActivated.addListener(this._boundedTabChangeHandler)
+
     chrome.webNavigation.onCompleted.addListener(this._boundedNavigationHandler)
     chrome.webNavigation.onBeforeNavigate.addListener(this._boundedWaitHandler)
 
@@ -79,6 +84,10 @@ class Background {
     this._badgeState = this._recording.length > 0 ? '1' : ''
 
     chrome.runtime.onMessage.removeListener(this._boundedMessageHandler)
+
+    chrome.tabs.onCreated.removeListener(this._boundedTabCreateHandler)
+    chrome.tabs.onActivated.removeListener(this._boundedTabChangeHandler)
+
     chrome.webNavigation.onCompleted.removeListener(this._boundedNavigationHandler)
     chrome.webNavigation.onBeforeNavigate.removeListener(this._boundedWaitHandler)
     // chrome.contextMenus.onClicked.removeListener(this._boundedMenuHandler)
@@ -136,6 +145,22 @@ class Background {
       selector: undefined,
       value: undefined,
       action: headlessActions.NAVIGATION,
+    })
+  }
+
+  recordTabCreate(value) {
+    this.handleMessage({
+      selector: undefined,
+      value,
+      action: headlessActions.TAB_CREATE,
+    })
+  }
+
+  recordTabChange(value) {
+    this.handleMessage({
+      selector: undefined,
+      value,
+      action: headlessActions.TAB_CHANGE,
     })
   }
 
@@ -293,6 +318,14 @@ class Background {
     if (frameId === 0) {
       this.recordNavigation()
     }
+  }
+
+  handleTabCreate(tab) {
+    this.recordTabCreate(tab.id)
+  }
+
+  handleTabChange(activeInfo) {
+    this.recordTabChange(activeInfo.tabId)
   }
 
   // TODO: Use a better naming convention for this arguments
