@@ -21,6 +21,19 @@ export default class BaseGenerator {
     this._allFrames = {}
     this._screenshotCounter = 0
 
+    // Maintain the order for opened tabs so that we can
+    // handle the "tab change" event at the reply phase.
+    //
+    // This relys on a chromium implementation every time a tab is
+    // created which generates an auto-increment id:
+    // components/sessions/core/session_id_generator.cc:60
+    //
+    // We can assume the initial tab id is `0`.
+    //
+    // Please refer to `_handleTabCreate` and `_handleTabChange`
+    // for more details.
+    this._tabIds = [0]
+
     this._hasNavigation = false
   }
 
@@ -57,7 +70,7 @@ export default class BaseGenerator {
           }
           break
         case 'click':
-          this._blocks.push(this._handleClick(escapedSelector, events))
+          this._blocks.push(this._handleClick(escapedSelector, events, i))
           break
         case 'change':
           if (tagName === 'SELECT') {
@@ -73,6 +86,12 @@ export default class BaseGenerator {
         case headlessActions.NAVIGATION:
           this._blocks.push(this._handleWaitForNavigation())
           this._hasNavigation = true
+          break
+        case headlessActions.TAB_CREATE:
+          this._blocks.push(this._handleTabCreate(value))
+          break
+        case headlessActions.TAB_CHANGE:
+          this._blocks.push(this._handleTabChange(value))
           break
         case headlessActions.SCREENSHOT:
           this._blocks.push(this._handleScreenshot(value))
@@ -125,16 +144,29 @@ export default class BaseGenerator {
     }
   }
 
-  _handleKeyDown(selector, value) {
+  _handleKeyDown(selector, value, waitForPopup) {
     const block = new Block(this._frameId)
-    block.addLine({
-      type: eventsToRecord.KEYDOWN,
-      value: `await ${this._frame}.type('${selector}', '${this._escapeUserInput(value)}')`,
-    })
+    if (waitForPopup) {
+      block.addLine({
+        type: eventsToRecord.KEYDOWN,
+        value: `{
+  const [newPage] = await Promise.all([
+    page.waitForEvent('popup'),
+    ${this._frame}.type('${selector}', '${this._escapeUserInput(value)}'),
+  ])
+  page = newPage
+}`,
+      })
+    } else {
+      block.addLine({
+        type: eventsToRecord.KEYDOWN,
+        value: `await ${this._frame}.type('${selector}', '${this._escapeUserInput(value)}')`,
+      })
+    }
     return block
   }
 
-  _handleClick(selector) {
+  _handleClick(selector, events, index) {
     const block = new Block(this._frameId)
     if (this._options.waitForSelectorOnClick) {
       block.addLine({
@@ -142,10 +174,25 @@ export default class BaseGenerator {
         value: `await ${this._frame}.waitForSelector('${selector}')`,
       })
     }
-    block.addLine({
-      type: eventsToRecord.CLICK,
-      value: `await ${this._frame}.click('${selector}')`,
-    })
+    const waitForPopup =
+      events[index + 1]?.action === headlessActions.TAB_CREATE ? events[index + 1] : false
+    if (waitForPopup) {
+      block.addLine({
+        type: eventsToRecord.CLICK,
+        value: `{
+  const t = await Promise.all([
+    page.waitForEvent('popup'),
+    ${this._frame}.click('${selector}'),
+  ])
+  page = t[0]
+}`,
+      })
+    } else {
+      block.addLine({
+        type: eventsToRecord.CLICK,
+        value: `await ${this._frame}.click('${selector}')`,
+      })
+    }
     return block
   }
 
@@ -190,6 +237,34 @@ await element${this._screenshotCounter}.screenshot({ path: 'screenshot_${this._s
       block.addLine({
         type: headlessActions.NAVIGATION,
         value: `await navigationPromise`,
+      })
+    }
+    return block
+  }
+
+  _handleTabCreate(value) {
+    const block = new Block(this._frameId)
+    if (value) {
+      this._tabIds.push(value)
+      block.addLine({
+        type: headlessActions.TAB_CREATE,
+        value: `// Tab created, id = ${value}`,
+      })
+    }
+    return block
+  }
+
+  _handleTabChange(value) {
+    const block = new Block(this._frameId)
+    if (value) {
+      const pageIndex = Math.max(this._tabIds.indexOf(value), 0)
+      block.addLine({
+        type: headlessActions.TAB_CHANGE,
+        value: `page = context.pages()[${pageIndex}]`,
+      })
+      block.addLine({
+        type: headlessActions.TAB_CHANGE,
+        value: `await page.bringToFront()`,
       })
     }
     return block
