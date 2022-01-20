@@ -38,7 +38,9 @@ export default class PlaywrightCodeGenerator extends BaseGenerator {
 
   _handleClick(selector, events, index) {
     const block = super._handleClick(selector, events, index)
-    if (this._options.waitForNetworkIdleAfterClick) {
+    const waitForPopup =
+      events[index + 1]?.action === headlessActions.TAB_CREATE ? events[index + 1] : false
+    if (!waitForPopup && this._options.waitForNetworkIdleAfterClick) {
       block.addLine({
         type: eventsToRecord.CLICK,
         value: `await page.waitForLoadState('networkidle')`,
