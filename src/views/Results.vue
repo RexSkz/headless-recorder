@@ -48,6 +48,10 @@ export default {
       type: String,
       default: '',
     },
+    results: {
+      type: Array,
+      default: () => [],
+    },
     options: {
       type: Object,
       default: () => ({}),
@@ -57,13 +61,22 @@ export default {
   data() {
     return {
       activeTab: headlessTypes.PLAYWRIGHT,
-      tabs: [headlessTypes.PLAYWRIGHT, headlessTypes.PUPPETEER],
+      tabs: [headlessTypes.PLAYWRIGHT, headlessTypes.PUPPETEER, headlessTypes.RESULTS],
     }
   },
 
   computed: {
     code() {
-      return this.activeTab === headlessTypes.PUPPETEER ? this.puppeteer : this.playwright
+      switch (this.activeTab) {
+        case headlessTypes.PUPPETEER:
+          return this.puppeteer
+        case headlessTypes.PLAYWRIGHT:
+          return this.playwright
+        case headlessTypes.RESULTS:
+          return JSON.stringify(this.results, null, 2)
+        default:
+          return ''
+      }
     },
   },
 

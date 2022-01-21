@@ -1,3 +1,4 @@
+import { headlessTypes } from '../modules/code-generator/constants';
 <template>
   <div class="bg-gray-lightest dark:bg-black flex flex-col overflow-hidden">
     <Header @options="openOptions" @help="goHelp" @dark="toggleDarkMode" />
@@ -17,6 +18,7 @@
     <Results
       :puppeteer="code"
       :playwright="codeForPlaywright"
+      :results="recording"
       :options="options"
       v-if="showResultsTab"
       v-on:update:tab="currentResultTab = $event"
@@ -59,6 +61,7 @@ import analytics from '@/services/analytics'
 import { popupActions, isDarkMode } from '@/services/constants'
 
 import CodeGenerator from '@/modules/code-generator'
+import { headlessTypes } from '@/modules/code-generator/constants'
 
 import Home from '@/views/Home.vue'
 import Results from '@/views/Results.vue'
@@ -259,7 +262,16 @@ export default {
     },
 
     getCode() {
-      return this.currentResultTab === 'puppeteer' ? this.code : this.codeForPlaywright
+      switch (this.currentResultTab) {
+        case headlessTypes.PUPPETEER:
+          return this.code
+        case headlessTypes.PLAYWRIGHT:
+          return this.codeForPlaywright
+        case headlessTypes.RESULTS:
+          return JSON.stringify(this.recording, null, 2)
+        default:
+          return ''
+      }
     },
 
     run() {
