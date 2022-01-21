@@ -66,7 +66,7 @@ export default class BaseGenerator {
       switch (action) {
         case 'keydown':
           if (keyCode === this._options.keyCode) {
-            this._blocks.push(this._handleKeyDown(escapedSelector, value, keyCode))
+            this._blocks.push(this._handleKeyDown(escapedSelector, value, keyCode, events, i))
           }
           break
         case 'click':
@@ -144,8 +144,10 @@ export default class BaseGenerator {
     }
   }
 
-  _handleKeyDown(selector, value, waitForPopup) {
+  _handleKeyDown(selector, value, keyCode, events, index) {
     const block = new Block(this._frameId)
+    const waitForPopup =
+      events[index + 1]?.action === headlessActions.TAB_CREATE ? events[index + 1] : false
     if (waitForPopup) {
       block.addLine({
         type: eventsToRecord.KEYDOWN,
@@ -243,15 +245,11 @@ await element${this._screenshotCounter}.screenshot({ path: 'screenshot_${this._s
   }
 
   _handleTabCreate(value) {
-    const block = new Block(this._frameId)
     if (value) {
       this._tabIds.push(value)
-      block.addLine({
-        type: headlessActions.TAB_CREATE,
-        value: `// Tab created, id = ${value}`,
-      })
     }
-    return block
+    // no code generated here
+    return new Block(this._frameId)
   }
 
   _handleTabChange(value) {
