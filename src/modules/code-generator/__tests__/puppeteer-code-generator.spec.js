@@ -136,7 +136,7 @@ describe('PuppeteerCodeGenerator', () => {
     const events = [
       {
         action: 'keydown',
-        keyCode: 9,
+        key: 'Tab',
         selector: 'input.value',
         value: "hello');console.log('world",
       },

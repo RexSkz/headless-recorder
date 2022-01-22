@@ -51,7 +51,7 @@ describe('forms', () => {
 
     const eventLog = await waitForAndGetEvents(page, string.length + tab + change)
     const event = _.find(eventLog, e => {
-      return e.action === 'keydown' && e.keyCode === 9
+      return e.action === 'keydown' && e.key === 'Tab'
     })
     expect(event.value).toEqual(string)
   })
@@ -63,7 +63,7 @@ describe('forms', () => {
 
     const eventLog = await waitForAndGetEvents(page, string.length + tab + change)
     const event = _.find(eventLog, e => {
-      return e.action === 'keydown' && e.keyCode === 9
+      return e.action === 'keydown' && e.key === 'Tab'
     })
     expect(event.value).toEqual(string)
   })

@@ -59,7 +59,7 @@
               {{ recordingKeyCodePress ? 'Capturing...' : 'Record Key Stroke' }}
             </Button>
             <span class="text-gray-dark dark:text-gray-light text-sm ml-3">
-              {{ options.code.keyCode }}
+              {{ options.code.key }}
             </span>
           </div>
           <p>
@@ -188,7 +188,7 @@ export default {
 
       const keyDownFunction = e => {
         this.recordingKeyCodePress = false
-        this.updateKeyCodeWithNumber(e)
+        this.updateKeyCode(e)
         window.removeEventListener('keydown', keyDownFunction, false)
         e.preventDefault()
       }
@@ -196,8 +196,8 @@ export default {
       window.addEventListener('keydown', keyDownFunction, false)
     },
 
-    updateKeyCodeWithNumber(evt) {
-      this.options.code.keyCode = parseInt(evt.keyCode, 10)
+    updateKeyCode(evt) {
+      this.options.code.key = evt.key
       this.save()
     },
   },

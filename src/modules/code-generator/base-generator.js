@@ -1,5 +1,9 @@
 import Block from '@/modules/code-generator/block'
-import { headlessActions, eventsToRecord } from '@/modules/code-generator/constants'
+import {
+  headlessActions,
+  eventsToRecord,
+  eventsOptimized,
+} from '@/modules/code-generator/constants'
 
 export const defaults = {
   wrapAsync: false,
@@ -9,7 +13,7 @@ export const defaults = {
   blankLinesBetweenBlocks: true,
   dataAttribute: '',
   showPlaywrightFirst: true,
-  keyCode: 9,
+  key: 'Tab',
 }
 
 export default class BaseGenerator {
@@ -57,7 +61,7 @@ export default class BaseGenerator {
     if (!events) return result
 
     for (let i = 0; i < events.length; i++) {
-      const { action, selector, value, href, keyCode, tagName, frameId, frameUrl } = events[i]
+      const { action, selector, value, href, key, tagName, frameId, frameUrl } = events[i]
       const escapedSelector = selector ? selector?.replace(/\\/g, '\\\\') : selector
 
       // we need to keep a handle on what frames events originate from
@@ -65,7 +69,7 @@ export default class BaseGenerator {
 
       switch (action) {
         case eventsToRecord.KEYDOWN:
-          this._blocks.push(this._handleKeyDown(escapedSelector, value, keyCode, events, i))
+          this._blocks.push(this._handleKeyDown(key, events, i))
           break
         case eventsToRecord.CLICK:
           this._blocks.push(this._handleClick(escapedSelector, events, i))
@@ -74,6 +78,9 @@ export default class BaseGenerator {
           if (tagName === 'SELECT') {
             this._blocks.push(this._handleChange(escapedSelector, value))
           }
+          break
+        case eventsOptimized.FILL:
+          this._blocks.push(this._handleFill(escapedSelector, value))
           break
         case headlessActions.GOTO:
           this._blocks.push(this._handleGoto(href, frameId))
@@ -142,7 +149,7 @@ export default class BaseGenerator {
     }
   }
 
-  _handleKeyDown(selector, value, keyCode, events, index) {
+  _handleKeyDown(key, events, index) {
     const block = new Block(this._frameId)
     const waitForPopup =
       events[index + 1]?.action === headlessActions.TAB_CREATE ? events[index + 1] : false
@@ -152,7 +159,7 @@ export default class BaseGenerator {
         value: `{
   const [newPage] = await Promise.all([
     page.waitForEvent('popup'),
-    ${this._frame}.type('${selector}', '${this._escapeUserInput(value)}'),
+    ${this._frame}.keyboard.press('${key}'),
   ])
   page = newPage
 }`,
@@ -160,9 +167,18 @@ export default class BaseGenerator {
     } else {
       block.addLine({
         type: eventsToRecord.KEYDOWN,
-        value: `await ${this._frame}.type('${selector}', '${this._escapeUserInput(value)}')`,
+        value: `await ${this._frame}.keyboard.press('${key}'),`,
       })
     }
+    return block
+  }
+
+  _handleFill(selector, value) {
+    const block = new Block(this._frameId)
+    block.addLine({
+      type: eventsToRecord.KEYDOWN,
+      value: `await ${this._frame}.fill('${selector}', '${this._escapeUserInput(value)}')`,
+    })
     return block
   }
 

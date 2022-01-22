@@ -80,7 +80,7 @@ export default class Recorder {
         value: e.target.value,
         tagName: e.target.tagName,
         action: e.type,
-        keyCode: e.keyCode ? e.keyCode : null,
+        key: e.key ? e.key : null,
         href: e.target.href ? e.target.href : null,
         coordinates: Recorder._getCoordinates(e),
       })

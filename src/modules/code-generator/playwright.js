@@ -2,7 +2,7 @@ import Block from '@/modules/code-generator/block'
 import { headlessActions } from '@/modules/code-generator/constants'
 import BaseGenerator from '@/modules/code-generator/base-generator'
 
-const importPlaywright = `const { chromium } = require('playwright');\n`
+const importPlaywright = `import { chromium } from 'playwright';\n`
 
 const header = `const browser = await chromium.launch()
 const context = await browser.newContext()

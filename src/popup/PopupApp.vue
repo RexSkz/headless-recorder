@@ -1,4 +1,3 @@
-import { headlessTypes } from '../modules/code-generator/constants';
 <template>
   <div class="bg-gray-lightest dark:bg-black flex flex-col overflow-hidden">
     <Header @options="openOptions" @help="goHelp" @dark="toggleDarkMode" />
@@ -30,11 +29,11 @@ import { headlessTypes } from '../modules/code-generator/constants';
       class="flex py-2 px-3 justify-between bg-black-shady"
       v-show="showResultsTab"
     >
-      <Button dark class="mr-2" @click="restart" v-show="code">
+      <Button dark class="w-34" @click="restart" v-show="code">
         <img src="/icons/dark/sync.svg" class="mr-1" alt="restart recording" />
         Restart
       </Button>
-      <Button dark class="mr-2 w-34" @click="copyCode" v-show="code">
+      <Button dark class="w-40" @click="copyCode" v-show="code">
         <img
           v-show="!isCopying"
           src="/icons/dark/duplicate.svg"
@@ -44,7 +43,7 @@ import { headlessTypes } from '../modules/code-generator/constants';
         <span v-show="!isCopying">Copy to clipboard</span>
         <span v-show="isCopying">Copied!</span>
       </Button>
-      <Button @click="run" v-show="code">
+      <Button class="w-34" @click="run" v-show="code">
         <img src="/icons/light/zap.svg" class="mr-1" alt="thunder" />
         Run on Checkly
       </Button>
@@ -269,7 +268,7 @@ export default {
         case headlessTypes.PLAYWRIGHT:
           return this.codeForPlaywright
         case headlessTypes.RESULTS:
-          return JSON.stringify(this.recording, null, 2)
+          return JSON.stringify(this.optimizedRecording, null, 2)
         default:
           return ''
       }
@@ -288,8 +287,7 @@ export default {
 
 <style>
 html {
-  width: 386px;
-  height: 535px;
+  width: 420px;
 }
 
 button:focus-visible {

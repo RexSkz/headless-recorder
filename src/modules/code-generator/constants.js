@@ -22,7 +22,7 @@ export const eventsToRecord = {
 }
 
 export const eventsOptimized = {
-  TYPE: 'type',
+  FILL: 'fill',
 }
 
 export const headlessTypes = {

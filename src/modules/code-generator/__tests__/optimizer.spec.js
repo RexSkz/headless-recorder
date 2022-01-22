@@ -1,4 +1,5 @@
 import Optimizer from '../optimizer'
+import { eventsOptimized, eventsToRecord, headlessActions } from '../constants'
 
 describe('Optimizer', () => {
   test('it should optimize correctly', () => {
@@ -9,7 +10,7 @@ describe('Optimizer', () => {
         frameId: 0,
         frameUrl: 'https://example.com/',
         href: null,
-        keyCode: null,
+        key: null,
         selector: '.form-control',
         tagName: 'INPUT',
         value: '',
@@ -20,7 +21,7 @@ describe('Optimizer', () => {
         frameId: 0,
         frameUrl: 'https://example.com/',
         href: null,
-        keyCode: 229,
+        key: 'Process',
         selector: '.form-control',
         tagName: 'INPUT',
         value: '',
@@ -31,7 +32,7 @@ describe('Optimizer', () => {
         frameId: 0,
         frameUrl: 'https://example.com/',
         href: null,
-        keyCode: 229,
+        key: 'Process',
         selector: '.form-control',
         tagName: 'INPUT',
         value: 't',
@@ -42,7 +43,7 @@ describe('Optimizer', () => {
         frameId: 0,
         frameUrl: 'https://example.com/',
         href: null,
-        keyCode: 229,
+        key: 'Process',
         selector: '.form-control',
         tagName: 'INPUT',
         value: `t'y`,
@@ -53,7 +54,7 @@ describe('Optimizer', () => {
         frameId: 0,
         frameUrl: 'https://example.com/',
         href: null,
-        keyCode: 229,
+        key: 'Process',
         selector: '.form-control',
         tagName: 'INPUT',
         value: `t'y'p`,
@@ -64,7 +65,7 @@ describe('Optimizer', () => {
         frameId: 0,
         frameUrl: 'https://example.com/',
         href: null,
-        keyCode: 229,
+        key: 'Process',
         selector: '.form-control',
         tagName: 'INPUT',
         value: `t'y'pe`,
@@ -75,7 +76,7 @@ describe('Optimizer', () => {
         frameId: 0,
         frameUrl: 'https://example.com/',
         href: null,
-        keyCode: 229,
+        key: 'Process',
         selector: '.form-control',
         tagName: 'INPUT',
         value: 'types',
@@ -86,7 +87,7 @@ describe('Optimizer', () => {
         frameId: 0,
         frameUrl: 'https://example.com/',
         href: null,
-        keyCode: 13,
+        key: 'Enter',
         selector: '.form-control',
         tagName: 'INPUT',
         value: 'types',
@@ -97,7 +98,7 @@ describe('Optimizer', () => {
         frameId: 0,
         frameUrl: 'https://example.com/',
         href: 'https://example.com/',
-        keyCode: null,
+        key: null,
         selector: '.no-underline',
         tagName: 'A',
       },
@@ -111,11 +112,48 @@ describe('Optimizer', () => {
         frameId: null,
         frameUrl: null,
       },
+      {
+        action: 'keydown',
+        coordinates: null,
+        frameId: 0,
+        frameUrl: 'https://eval.com',
+        href: 'https://eval.com',
+        key: 'Control',
+        selector: '.Box-header > .d-flex > .flex-1 > .css-truncate > .text-bold',
+        tagName: 'A',
+      },
+      {
+        action: 'keydown',
+        coordinates: null,
+        frameId: 0,
+        frameUrl: 'https://eval.com',
+        href: 'https://eval.com',
+        key: 'Control',
+        selector: '.Box-header > .d-flex > .flex-1 > .css-truncate > .text-bold',
+        tagName: 'A',
+      },
+      {
+        action: 'keydown',
+        coordinates: null,
+        frameId: 0,
+        frameUrl: 'https://eval.com',
+        href: 'https://eval.com',
+        key: 'Control',
+        selector: '.Box-header > .d-flex > .flex-1 > .css-truncate > .text-bold',
+        tagName: 'A',
+      },
     ]
     const optimizer = new Optimizer({})
     const optimizedEvents = optimizer.optimize(events)
 
-    expect(optimizedEvents.length).toEqual(4)
-    expect(optimizedEvents).toEqual([events[0], events[7], events[8], events[9]])
+    expect(optimizedEvents.length).toEqual(6)
+    expect(optimizedEvents.map(item => item.action)).toEqual([
+      eventsToRecord.CLICK,
+      eventsOptimized.FILL,
+      eventsToRecord.KEYDOWN,
+      eventsToRecord.CLICK,
+      headlessActions.NAVIGATION,
+      eventsToRecord.KEYDOWN,
+    ])
   })
 })

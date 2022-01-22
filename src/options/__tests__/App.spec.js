@@ -39,11 +39,11 @@ describe('App.vue', () => {
   test('it has the default key code for capturing inputs as 9 (Tab)', () => {
     window.chrome = createChromeLocalStorageMock()
     const wrapper = mount(App)
-    expect(wrapper.vm.$data.options.code.keyCode).toBe(9)
+    expect(wrapper.vm.$data.options.code.key).toBe('Tab')
   })
 
   test('clicking the button will listen for the next keydown and update the key code option', () => {
-    const options = { code: { keyCode: 9 } }
+    const options = { code: { key: 'Tab' } }
     window.chrome = createChromeLocalStorageMock(options)
     const wrapper = mount(App)
 
@@ -51,12 +51,12 @@ describe('App.vue', () => {
       .$nextTick()
       .then(() => {
         wrapper.find('button').element.click()
-        const event = new KeyboardEvent('keydown', { keyCode: 16 })
+        const event = new KeyboardEvent('keydown', { key: 'A' })
         window.dispatchEvent(event)
         return wrapper.vm.$nextTick()
       })
       .then(() => {
-        expect(wrapper.vm.$data.options.code.keyCode).toBe(16)
+        expect(wrapper.vm.$data.options.code.key).toBe('A')
       })
   })
 
