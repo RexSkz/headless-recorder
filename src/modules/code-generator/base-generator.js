@@ -6,7 +6,6 @@ export const defaults = {
   headless: true,
   waitForNavigation: true,
   waitForSelectorOnClick: true,
-  waitForNetworkIdleAfterClick: true,
   blankLinesBetweenBlocks: true,
   dataAttribute: '',
   showPlaywrightFirst: true,

@@ -1,5 +1,5 @@
 import Block from '@/modules/code-generator/block'
-import { headlessActions, eventsToRecord } from '@/modules/code-generator/constants'
+import { headlessActions } from '@/modules/code-generator/constants'
 import BaseGenerator from '@/modules/code-generator/base-generator'
 
 const importPuppeteer = `const puppeteer = require('puppeteer');\n`
@@ -27,28 +27,6 @@ export default class PuppeteerCodeGenerator extends BaseGenerator {
 
   generate(events) {
     return importPuppeteer + this._getHeader() + this._parseEvents(events) + this._getFooter()
-  }
-
-  _handleClick(selector, events, index) {
-    const block = super._handleClick(selector, events, index)
-    if (this._options.waitForNetworkIdleAfterClick) {
-      block.addLine({
-        type: eventsToRecord.CLICK,
-        value: `await ${this._frame}.waitForNetworkIdle()`,
-      })
-    }
-    return block
-  }
-
-  _handleGoto(href) {
-    const block = super._handleGoto(href)
-    if (this._options.waitForNetworkIdleAfterClick) {
-      block.addLine({
-        type: eventsToRecord.CLICK,
-        value: `await ${this._frame}.waitForNetworkIdle()`,
-      })
-    }
-    return block
   }
 
   _handleViewport(width, height) {
