@@ -18,7 +18,7 @@ import { headlessTypes } from '../modules/code-generator/constants';
     <Results
       :puppeteer="code"
       :playwright="codeForPlaywright"
-      :results="recording"
+      :results="optimizedRecording"
       :options="options"
       v-if="showResultsTab"
       v-on:update:tab="currentResultTab = $event"
@@ -105,6 +105,7 @@ export default {
 
       code: '',
       codeForPlaywright: '',
+      optimizedRecording: [],
       options: defaultOptions,
     }
   },
@@ -174,11 +175,11 @@ export default {
     async generateCode() {
       const { recording, options = { code: {} } } = await storage.get(['recording', 'options'])
       const generator = new CodeGenerator(options.code)
-      const { puppeteer, playwright } = generator.generate(recording)
+      const { puppeteer, playwright, optimizedRecording } = generator.generate(recording)
 
-      this.recording = recording
       this.code = puppeteer
       this.codeForPlaywright = playwright
+      this.optimizedRecording = optimizedRecording
       this.showResultsTab = true
     },
 

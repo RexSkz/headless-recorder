@@ -65,15 +65,13 @@ export default class BaseGenerator {
       this._setFrames(frameId, frameUrl)
 
       switch (action) {
-        case 'keydown':
-          if (keyCode === this._options.keyCode) {
-            this._blocks.push(this._handleKeyDown(escapedSelector, value, keyCode, events, i))
-          }
+        case eventsToRecord.KEYDOWN:
+          this._blocks.push(this._handleKeyDown(escapedSelector, value, keyCode, events, i))
           break
-        case 'click':
+        case eventsToRecord.CLICK:
           this._blocks.push(this._handleClick(escapedSelector, events, i))
           break
-        case 'change':
+        case eventsToRecord.CHANGE:
           if (tagName === 'SELECT') {
             this._blocks.push(this._handleChange(escapedSelector, value))
           }

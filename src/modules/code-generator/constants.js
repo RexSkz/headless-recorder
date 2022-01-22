@@ -21,6 +21,10 @@ export const eventsToRecord = {
   UNLOAD: 'unload',
 }
 
+export const eventsOptimized = {
+  TYPE: 'type',
+}
+
 export const headlessTypes = {
   PUPPETEER: 'puppeteer',
   PLAYWRIGHT: 'playwright',

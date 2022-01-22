@@ -12,6 +12,7 @@ class Background {
     this._recording = []
     this._boundedMessageHandler = null
     this._boundedNavigationHandler = null
+    this._boundedSPAHandler = null
     this._boundedWaitHandler = null
 
     this.overlayHandler = null
@@ -46,6 +47,7 @@ class Background {
 
     this._boundedMessageHandler = this.handleMessage.bind(this)
     this._boundedNavigationHandler = this.handleNavigation.bind(this)
+    this._boundedSPAHandler = this.handleHistoryOrFragmentChange.bind(this)
     this._boundedWaitHandler = () => badge.wait()
     this._boundedTabCreateHandler = this.handleTabCreate.bind(this)
     this._boundedTabChangeHandler = this.handleTabChange.bind(this)
@@ -76,6 +78,8 @@ class Background {
 
     chrome.webNavigation.onCompleted.addListener(this._boundedNavigationHandler)
     chrome.webNavigation.onBeforeNavigate.addListener(this._boundedWaitHandler)
+    chrome.webNavigation.onHistoryStateUpdated.addListener(this._boundedSPAHandler)
+    chrome.webNavigation.onReferenceFragmentUpdated.addListener(this._boundedSPAHandler)
 
     badge.start()
   }
@@ -90,6 +94,8 @@ class Background {
 
     chrome.webNavigation.onCompleted.removeListener(this._boundedNavigationHandler)
     chrome.webNavigation.onBeforeNavigate.removeListener(this._boundedWaitHandler)
+    chrome.webNavigation.onHistoryStateUpdated.removeListener(this._boundedSPAHandler)
+    chrome.webNavigation.onReferenceFragmentUpdated.removeListener(this._boundedSPAHandler)
     // chrome.contextMenus.onClicked.removeListener(this._boundedMenuHandler)
 
     badge.stop(this._badgeState)
@@ -315,6 +321,12 @@ class Background {
     await browser.injectContentScript()
     this.toggleOverlay({ open: true, pause: this._isPaused })
 
+    if (frameId === 0) {
+      this.recordNavigation()
+    }
+  }
+
+  handleHistoryOrFragmentChange({ frameId }) {
     if (frameId === 0) {
       this.recordNavigation()
     }
