@@ -1,9 +1,11 @@
 import { createApp } from 'vue'
 
+import browser from '@/services/browser'
 import getSelector from '@/services/selector'
 import SelectorApp from '@/modules/overlay/Selector.vue'
 import OverlayApp from '@/modules/overlay/Overlay.vue'
 import { overlaySelectors } from '@/modules/overlay/constants'
+import { eventsToRecord } from '@/modules/code-generator/constants'
 
 export default class Overlay {
   constructor({ store }) {
@@ -18,6 +20,38 @@ export default class Overlay {
     this.isScrolling = false
 
     this.store = store
+  }
+
+  _sendMessage(msg) {
+    try {
+      chrome.runtime.sendMessage(msg)
+    } catch (err) {
+      console.debug('caught error', err)
+    }
+  }
+
+  backgroundListener(msg) {
+    if (!msg?.action) {
+      return
+    }
+
+    switch (msg.action) {
+      case 'RECORD_HOVER':
+        this._sendMessage({
+          action: eventsToRecord.HOVER,
+          selector: this.overlayApp.currentSelector,
+          value: null,
+          tagName: null,
+          key: null,
+          href: null,
+          coordinates: null,
+        })
+        break
+      case 'COPY_SELECTOR':
+        browser.copyToClipboard(this.overlayApp.currentSelector)
+        break
+      default:
+    }
   }
 
   mount({ clear = false, pause = false } = {}) {
@@ -71,6 +105,9 @@ export default class Overlay {
 
     window.document.addEventListener('mouseover', this.mouseOverEvent)
     window.addEventListener('scroll', this.scrollEvent, false)
+
+    this._backgroundListener = this.backgroundListener.bind(this)
+    chrome.runtime.onMessage.addListener(this._backgroundListener)
   }
 
   unmount() {
@@ -88,5 +125,7 @@ export default class Overlay {
 
     window.document.removeEventListener('mouseover', this.mouseOverEvent)
     window.removeEventListener('scroll', this.scrollEvent, false)
+
+    chrome.runtime.onMessage.addListener(this._backgroundListener)
   }
 }

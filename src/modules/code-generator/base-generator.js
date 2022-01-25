@@ -71,6 +71,9 @@ export default class BaseGenerator {
         case eventsToRecord.KEYDOWN:
           this._blocks.push(this._handleKeyDown(key, events, i))
           break
+        case eventsToRecord.HOVER:
+          this._blocks.push(this._handleHover(escapedSelector))
+          break
         case eventsToRecord.CLICK:
           this._blocks.push(this._handleClick(escapedSelector, events, i))
           break
@@ -180,6 +183,13 @@ export default class BaseGenerator {
       value: `await ${this._frame}.fill('${selector}', '${this._escapeUserInput(value)}')`,
     })
     return block
+  }
+
+  _handleHover(selector) {
+    return new Block(this._frameId, {
+      type: eventsToRecord.CHANGE,
+      value: `await ${this._frame}.hover('${selector}')`,
+    })
   }
 
   _handleClick(selector, events, index) {

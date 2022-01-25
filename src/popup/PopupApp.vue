@@ -287,7 +287,7 @@ export default {
 
 <style>
 html {
-  width: 420px;
+  width: 480px;
 }
 
 button:focus-visible {

@@ -83,7 +83,7 @@ export default {
   mounted() {
     if (!this.options?.code?.showPlaywrightFirst) {
       this.activeTab = headlessTypes.PUPPETEER
-      this.tabs = this.tabs.reverse()
+      this.tabs = [headlessTypes.PUPPETEER, headlessTypes.PLAYWRIGHT, headlessTypes.RESULTS]
     }
 
     this.$emit('update:tab', this.activeTab)

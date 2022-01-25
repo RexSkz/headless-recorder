@@ -7,21 +7,50 @@ import { headlessActions } from '@/modules/code-generator/constants'
 
 import CodeGenerator from '@/modules/code-generator'
 
+const MENU_ID_PREFIX = 'HEADLESS_RECORDER_CONTEXT_MENU_'
+
+const CONTEXT_MENU_ID = {
+  RECORD_HOVER: 'RECORD_HOVER',
+  COPY_SELECTOR: 'COPY_SELECTOR',
+}
+
+chrome.contextMenus.create({
+  title: 'Headless Recorder Action',
+  id: MENU_ID_PREFIX,
+  enabled: false,
+})
+chrome.contextMenus.create({
+  title: 'Record hover event on element',
+  contexts: ['all'],
+  id: MENU_ID_PREFIX + CONTEXT_MENU_ID.RECORD_HOVER,
+  parentId: MENU_ID_PREFIX,
+})
+chrome.contextMenus.create({
+  title: 'Copy element selector',
+  contexts: ['all'],
+  id: MENU_ID_PREFIX + CONTEXT_MENU_ID.COPY_SELECTOR,
+  parentId: MENU_ID_PREFIX,
+})
+
 class Background {
   constructor() {
     this._recording = []
-    this._boundedMessageHandler = null
-    this._boundedNavigationHandler = null
-    this._boundedSPAHandler = null
-    this._boundedWaitHandler = null
 
-    this.overlayHandler = null
+    this._boundedContextMenuHandler = this.handleContextMenuClick.bind(this)
+
+    this._boundedMessageHandler = this.handleMessage.bind(this)
+    this._boundedOverlayHandler = this.handleOverlayMessage.bind(this)
+
+    this._boundedTabCreateHandler = this.handleTabCreate.bind(this)
+    this._boundedTabChangeHandler = this.handleTabChange.bind(this)
+
+    this._boundedNavigationHandler = this.handleNavigation.bind(this)
+    this._boundedSPAHandler = this.handleHistoryOrFragmentChange.bind(this)
+
+    this._boundedWaitHandler = () => badge.wait()
 
     this._badgeState = ''
     this._isPaused = false
-
-    this._menuId = 'PUPPETEER_RECORDER_CONTEXT_MENU'
-    this._boundedMenuHandler = null
 
     // Some events are sent double on page navigations to simplify the event recorder.
     // We keep some simple state to disregard events if needed.
@@ -45,33 +74,11 @@ class Background {
     await browser.injectContentScript()
     this.toggleOverlay({ open: true, clear: true })
 
-    this._boundedMessageHandler = this.handleMessage.bind(this)
-    this._boundedNavigationHandler = this.handleNavigation.bind(this)
-    this._boundedSPAHandler = this.handleHistoryOrFragmentChange.bind(this)
-    this._boundedWaitHandler = () => badge.wait()
-    this._boundedTabCreateHandler = this.handleTabCreate.bind(this)
-    this._boundedTabChangeHandler = this.handleTabChange.bind(this)
-
-    this.overlayHandler = this.handleOverlayMessage.bind(this)
-
-    // chrome.contextMenus.create({
-    //   id: this._menuId,
-    //   title: 'Headless Recorder',
-    //   contexts: ['all'],
-    // })
-
-    // chrome.contextMenus.create({
-    //   id: this._menuId + 'SELECTOR',
-    //   title: 'Copy Selector',
-    //   parentId: this._menuId,
-    //   contexts: ['all'],
-    // })
-
-    // this._boundedMenuHandler = this.handleMenuInteraction.bind(this)
-    // chrome.contextMenus.onClicked.addListener(this._boundedMenuHandler)
+    chrome.contextMenus.update(MENU_ID_PREFIX, { enabled: true })
+    chrome.contextMenus.onClicked.addListener(this._boundedContextMenuHandler)
 
     chrome.runtime.onMessage.addListener(this._boundedMessageHandler)
-    chrome.runtime.onMessage.addListener(this.overlayHandler)
+    chrome.runtime.onMessage.addListener(this._boundedOverlayHandler)
 
     chrome.tabs.onCreated.addListener(this._boundedTabCreateHandler)
     chrome.tabs.onActivated.addListener(this._boundedTabChangeHandler)
@@ -87,7 +94,11 @@ class Background {
   stop() {
     this._badgeState = this._recording.length > 0 ? '1' : ''
 
+    chrome.contextMenus.update(MENU_ID_PREFIX, { enabled: false })
+    chrome.contextMenus.onClicked.removeListener(this._boundedContextMenuHandler)
+
     chrome.runtime.onMessage.removeListener(this._boundedMessageHandler)
+    // do not remove overlay handler
 
     chrome.tabs.onCreated.removeListener(this._boundedTabCreateHandler)
     chrome.tabs.onActivated.removeListener(this._boundedTabChangeHandler)
@@ -96,7 +107,6 @@ class Background {
     chrome.webNavigation.onBeforeNavigate.removeListener(this._boundedWaitHandler)
     chrome.webNavigation.onHistoryStateUpdated.removeListener(this._boundedSPAHandler)
     chrome.webNavigation.onReferenceFragmentUpdated.removeListener(this._boundedSPAHandler)
-    // chrome.contextMenus.onClicked.removeListener(this._boundedMenuHandler)
 
     badge.stop(this._badgeState)
 
@@ -178,8 +188,17 @@ class Background {
     })
   }
 
-  // handleMenuInteraction(info, tab) {
-  // }
+  handleContextMenuClick({ menuItemId }) {
+    switch (menuItemId) {
+      case MENU_ID_PREFIX + CONTEXT_MENU_ID.RECORD_HOVER:
+        browser.sendTabMessage({ action: 'RECORD_HOVER' })
+        break
+      case MENU_ID_PREFIX + CONTEXT_MENU_ID.COPY_SELECTOR:
+        browser.sendTabMessage({ action: 'COPY_SELECTOR' })
+        break
+      default: // does nothing
+    }
+  }
 
   handleMessage(msg, sender) {
     if (msg.control) {
@@ -209,7 +228,7 @@ class Background {
     if (control === overlayActions.RESTART) {
       chrome.storage.local.set({ restart: true })
       chrome.storage.local.set({ clear: false })
-      chrome.runtime.onMessage.removeListener(this.overlayHandler)
+      chrome.runtime.onMessage.removeListener(this._boundedOverlayHandler)
       this.stop()
       this.cleanUp()
       this.start()
@@ -217,7 +236,7 @@ class Background {
 
     if (control === overlayActions.CLOSE) {
       this.toggleOverlay()
-      chrome.runtime.onMessage.removeListener(this.overlayHandler)
+      chrome.runtime.onMessage.removeListener(this._boundedOverlayHandler)
     }
 
     if (control === overlayActions.COPY) {
@@ -296,7 +315,7 @@ class Background {
     }
 
     if (msg.action === popupActions.CLEAN_UP) {
-      chrome.runtime.onMessage.removeListener(this.overlayHandler)
+      chrome.runtime.onMessage.removeListener(this._boundedOverlayHandler)
       msg.value && this.stop()
       this.toggleOverlay()
       this.cleanUp()

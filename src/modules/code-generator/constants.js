@@ -11,6 +11,7 @@ export const headlessActions = {
 }
 
 export const eventsToRecord = {
+  HOVER: 'hover',
   CLICK: 'click',
   DBLCLICK: 'dblclick',
   CHANGE: 'change',
