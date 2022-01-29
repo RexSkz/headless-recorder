@@ -1,3 +1,20 @@
+# Headless Recorder for Jarvis
+
+```bash
+# install
+$ npm i
+
+# start the service
+$ npm run serve
+
+#  start the service, specify Jarvis host (default is https://jarvis.ssc.shopee.io)
+$ VUE_APP_JARVIS_HOST=http://localhost:3000 npm run serve
+```
+
+Below is the original README.md for the `headless-recorder` project.
+
+---
+
 <p align="right">
 <a href="https://www.producthunt.com/posts/headless-recorder-1-0?utm_source=badge-featured&utm_medium=badge&utm_souce=badge-headless-recorder-1-0" target="_blank"><img src="https://api.producthunt.com/widgets/embed-image/v1/featured.svg?post_id=305058&theme=light" alt="Headless Recorder 1.0 - Easily generate Playwright/Puppeteer scripts while browsing | Product Hunt" width="150" /></a>
 
@@ -144,4 +161,3 @@ Headless recorder is the spiritual successor & love child of segment.io's [Daydr
   <br>
   <b><sub>From Checkly with ♥️</sub></b>
 <p>
-

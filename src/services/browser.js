@@ -1,8 +1,8 @@
 const CONTENT_SCRIPT_PATH = 'js/content-script.js'
-const RUN_URL = 'https://app.checklyhq.com/checks/new/browser'
-const DOCS_URL = 'https://www.checklyhq.com/docs/headless-recorder'
-const SIGNUP_URL =
-  'https://www.checklyhq.com/product/synthetic-monitoring/?utm_source=Chrome+Extension&utm_medium=Headless+Recorder+Chrome+Extension&utm_campaign=Headless+Recorder&utm_id=Open+Source'
+const BASEURL = process.env.VUE_APP_JARVIS_HOST || 'https://jarvis.ssc.shopee.io'
+const RUN_URL = `${BASEURL}/test-case/create`
+const DOCS_URL = `${BASEURL}/help/instruction`
+const SIGNUP_URL = `${BASEURL}/?from=Chrome+Extension`
 
 export default {
   getActiveTab() {
@@ -34,11 +34,9 @@ export default {
     })
   },
 
-  getChecklyCookie() {
+  getCookie() {
     return new Promise(function(resolve) {
-      chrome.cookies.getAll({}, res =>
-        resolve(res.find(cookie => cookie.name.startsWith('checkly_has_account')))
-      )
+      chrome.cookies.getAll({}, res => resolve(res.find(cookie => cookie.name.startsWith('ssc_'))))
     })
   },
 
@@ -54,14 +52,14 @@ export default {
     chrome.tabs.create({ url: DOCS_URL })
   },
 
-  openChecklyRunner({ code, runner, isLoggedIn }) {
+  createJarvisTestCase({ events, isLoggedIn }) {
     if (!isLoggedIn) {
       chrome.tabs.create({ url: SIGNUP_URL })
       return
     }
 
-    const script = encodeURIComponent(btoa(code))
-    const url = `${RUN_URL}?framework=${runner}&script=${script}`
+    const data = encodeURIComponent(btoa(JSON.stringify(events)))
+    const url = `${RUN_URL}#events/${data}`
     chrome.tabs.create({ url })
   },
 }

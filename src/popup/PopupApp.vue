@@ -45,7 +45,7 @@
       </Button>
       <Button class="w-34" @click="run" v-show="code">
         <img src="/icons/light/zap.svg" class="mr-1" alt="thunder" />
-        Run on Checkly
+        Add to Jarvis
       </Button>
     </div>
 
@@ -121,7 +121,7 @@ export default {
   async mounted() {
     this.loadState()
     bus = browser.getBackgroundBus()
-    this.isLoggedIn = await browser.getChecklyCookie()
+    this.isLoggedIn = await browser.getCookie()
   },
 
   methods: {
@@ -275,9 +275,8 @@ export default {
     },
 
     run() {
-      browser.openChecklyRunner({
-        code: this.getCode(),
-        runner: this.currentResultTab,
+      browser.createJarvisTestCase({
+        events: this.optimizedRecording,
         isLoggedIn: this.isLoggedIn,
       })
     },
