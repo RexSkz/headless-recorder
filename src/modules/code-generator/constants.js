@@ -11,7 +11,6 @@ export const headlessActions = {
 }
 
 export const eventsToRecord = {
-  HOVER: 'hover',
   CLICK: 'click',
   DBLCLICK: 'dblclick',
   CHANGE: 'change',
@@ -20,6 +19,11 @@ export const eventsToRecord = {
   SUBMIT: 'submit',
   LOAD: 'load',
   UNLOAD: 'unload',
+}
+
+export const eventsByContextMenu = {
+  HOVER: 'hover',
+  MOUSEMOVE: 'mousemove',
 }
 
 export const eventsOptimized = {

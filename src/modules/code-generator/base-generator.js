@@ -2,6 +2,7 @@ import Block from '@/modules/code-generator/block'
 import {
   headlessActions,
   eventsToRecord,
+  eventsByContextMenu,
   eventsOptimized,
 } from '@/modules/code-generator/constants'
 
@@ -71,8 +72,11 @@ export default class BaseGenerator {
         case eventsToRecord.KEYDOWN:
           this._blocks.push(this._handleKeyDown(key, events, i))
           break
-        case eventsToRecord.HOVER:
+        case eventsByContextMenu.HOVER:
           this._blocks.push(this._handleHover(escapedSelector))
+          break
+        case eventsByContextMenu.MOUSEMOVE:
+          this._blocks.push(this._handleMousemove(escapedSelector, value))
           break
         case eventsToRecord.CLICK:
           this._blocks.push(this._handleClick(escapedSelector, events, i))
@@ -189,6 +193,13 @@ export default class BaseGenerator {
     return new Block(this._frameId, {
       type: eventsToRecord.CHANGE,
       value: `await ${this._frame}.hover('${selector}')`,
+    })
+  }
+
+  _handleMousemove(selector, { x, y }) {
+    return new Block(this._frameId, {
+      type: eventsByContextMenu.MOUSEMOVE,
+      value: `await ${this._frame}.mouse.move(${x}, ${y}, { steps: 100 }) // ${selector}`,
     })
   }
 

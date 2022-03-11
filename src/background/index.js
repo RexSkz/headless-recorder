@@ -11,6 +11,7 @@ const MENU_ID_PREFIX = 'HEADLESS_RECORDER_CONTEXT_MENU_'
 
 const CONTEXT_MENU_ID = {
   RECORD_HOVER: 'RECORD_HOVER',
+  RECORD_MOUSEMOVE: 'RECORD_MOUSEMOVE',
   COPY_SELECTOR: 'COPY_SELECTOR',
 }
 
@@ -23,6 +24,12 @@ chrome.contextMenus.create({
   title: 'Record hover event on element',
   contexts: ['all'],
   id: MENU_ID_PREFIX + CONTEXT_MENU_ID.RECORD_HOVER,
+  parentId: MENU_ID_PREFIX,
+})
+chrome.contextMenus.create({
+  title: 'Record mousemove event on element',
+  contexts: ['all'],
+  id: MENU_ID_PREFIX + CONTEXT_MENU_ID.RECORD_MOUSEMOVE,
   parentId: MENU_ID_PREFIX,
 })
 chrome.contextMenus.create({
@@ -192,6 +199,9 @@ class Background {
     switch (menuItemId) {
       case MENU_ID_PREFIX + CONTEXT_MENU_ID.RECORD_HOVER:
         browser.sendTabMessage({ action: 'RECORD_HOVER' })
+        break
+      case MENU_ID_PREFIX + CONTEXT_MENU_ID.RECORD_MOUSEMOVE:
+        browser.sendTabMessage({ action: 'RECORD_MOUSEMOVE' })
         break
       case MENU_ID_PREFIX + CONTEXT_MENU_ID.COPY_SELECTOR:
         browser.sendTabMessage({ action: 'COPY_SELECTOR' })

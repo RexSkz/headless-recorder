@@ -5,7 +5,7 @@ import getSelector from '@/services/selector'
 import SelectorApp from '@/modules/overlay/Selector.vue'
 import OverlayApp from '@/modules/overlay/Overlay.vue'
 import { overlaySelectors } from '@/modules/overlay/constants'
-import { eventsToRecord } from '@/modules/code-generator/constants'
+import { eventsByContextMenu } from '@/modules/code-generator/constants'
 
 export default class Overlay {
   constructor({ store }) {
@@ -18,6 +18,7 @@ export default class Overlay {
     this.mouseOverEvent = null
     this.scrollEvent = null
     this.isScrolling = false
+    this.mouseCoordinates = { x: 0, y: 0 }
 
     this.store = store
   }
@@ -38,13 +39,26 @@ export default class Overlay {
     switch (msg.action) {
       case 'RECORD_HOVER':
         this._sendMessage({
-          action: eventsToRecord.HOVER,
+          action: eventsByContextMenu.HOVER,
           selector: this.overlayApp.currentSelector,
           value: null,
           tagName: null,
           key: null,
           href: null,
           coordinates: null,
+        })
+        break
+      case 'RECORD_MOUSEMOVE':
+        this._sendMessage({
+          action: eventsByContextMenu.MOUSEMOVE,
+          selector: this.overlayApp.currentSelector,
+          value: {
+            x: this.mouseCoordinates.x,
+            y: this.mouseCoordinates.y,
+          },
+          tagName: null,
+          key: null,
+          href: null,
         })
         break
       case 'COPY_SELECTOR':
@@ -94,6 +108,8 @@ export default class Overlay {
       ) {
         this.selectorApp.move(e, [overlaySelectors.OVERLAY_ID])
       }
+      this.mouseCoordinates.x = e.clientX
+      this.mouseCoordinates.y = e.clientY
     }
 
     // Hide selector while the user is scrolling
