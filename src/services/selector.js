@@ -16,6 +16,6 @@ export default function selector(e, { dataAttribute } = {}) {
     optimizedMinLength: e.target.id ? 2 : 10,
     attr: name => name === dataAttribute,
     className: name => restrictedClassNames.every(item => !name.startsWith(item)),
-    idName: name => /^\d/.test(name),
+    idName: name => !/^\d/.test(name),
   })
 }
