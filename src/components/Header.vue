@@ -1,7 +1,7 @@
 <template>
   <div class="flex justify-between items-center p-4 pb-0 mb-2">
     <h1 role="button" class="text-sm font-semibold text-gray-darkest dark:text-gray-lightest">
-      Headless Recorder
+      Jarvis Recorder
     </h1>
     <div class="flex">
       <button @click="$emit('dark')" class="ml-4">

@@ -45,7 +45,7 @@ class Background {
   init() {
     chrome.runtime.onConnect.addListener(port => {
       chrome.contextMenus.create({
-        title: 'Headless Recorder Action',
+        title: 'Jarvis Recorder Action',
         id: MENU_ID_PREFIX,
         enabled: false,
       })

@@ -37,5 +37,24 @@
     "page": "options.html",
     "browser_style": true,
     "open_in_tab": true
-  }
+  },
+  "web_accessible_resources": [
+    {
+      "resources": [
+        "icons/dark/play.svg",
+        "icons/light/play.svg",
+        "icons/dark/pause.svg",
+        "icons/light/pause.svg",
+        "icons/dark/screen.svg",
+        "icons/light/screen.svg",
+        "icons/dark/clip.svg",
+        "icons/light/clip.svg",
+        "icons/dark/sync.svg",
+        "icons/light/sync.svg",
+        "icons/dark/duplicate.svg",
+        "icons/light/duplicate.svg"
+      ],
+      "matches": ["<all_urls>"]
+    }
+  ]
 }

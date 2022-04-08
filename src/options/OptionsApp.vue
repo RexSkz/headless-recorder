@@ -16,7 +16,7 @@
       <header class="flex flex-row justify-between items-center mb-3.5">
         <div class="flex items-baseline">
           <h1 class="text-blue text-2xl font-bold mr-1">
-            Headless Recorder
+            Jarvis Recorder
           </h1>
           <span class="text-gray-dark dark:text-gray-light text-sm">v{{ version }}</span>
         </div>

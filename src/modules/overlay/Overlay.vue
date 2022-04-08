@@ -124,7 +124,7 @@ export default {
     ...mapMutations(['copy', 'stop', 'close', 'restart']),
 
     getIcon(icon) {
-      return browser.runtime.getURL(`icons/${this.darkMode ? 'dark' : 'light'}/${icon}.svg`)
+      return browser.runtime.getURL(`/icons/${this.darkMode ? 'dark' : 'light'}/${icon}.svg`)
     },
 
     toggle() {
