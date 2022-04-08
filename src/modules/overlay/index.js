@@ -1,3 +1,4 @@
+import chrome from 'webextension-polyfill'
 import { createApp } from 'vue'
 
 import browser from '@/services/browser'

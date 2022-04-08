@@ -1,3 +1,4 @@
+import chrome from 'webextension-polyfill'
 import badge from '@/services/badge'
 import browser from '@/services/browser'
 import storage from '@/services/storage'
@@ -14,30 +15,6 @@ const CONTEXT_MENU_ID = {
   RECORD_MOUSEMOVE: 'RECORD_MOUSEMOVE',
   COPY_SELECTOR: 'COPY_SELECTOR',
 }
-
-chrome.contextMenus.create({
-  title: 'Headless Recorder Action',
-  id: MENU_ID_PREFIX,
-  enabled: false,
-})
-chrome.contextMenus.create({
-  title: 'Record hover event on element',
-  contexts: ['all'],
-  id: MENU_ID_PREFIX + CONTEXT_MENU_ID.RECORD_HOVER,
-  parentId: MENU_ID_PREFIX,
-})
-chrome.contextMenus.create({
-  title: 'Record mousemove event on element',
-  contexts: ['all'],
-  id: MENU_ID_PREFIX + CONTEXT_MENU_ID.RECORD_MOUSEMOVE,
-  parentId: MENU_ID_PREFIX,
-})
-chrome.contextMenus.create({
-  title: 'Copy element selector',
-  contexts: ['all'],
-  id: MENU_ID_PREFIX + CONTEXT_MENU_ID.COPY_SELECTOR,
-  parentId: MENU_ID_PREFIX,
-})
 
 class Background {
   constructor() {
@@ -66,7 +43,30 @@ class Background {
   }
 
   init() {
-    chrome.extension.onConnect.addListener(port => {
+    chrome.runtime.onConnect.addListener(port => {
+      chrome.contextMenus.create({
+        title: 'Headless Recorder Action',
+        id: MENU_ID_PREFIX,
+        enabled: false,
+      })
+      chrome.contextMenus.create({
+        title: 'Record mousemove event on element',
+        contexts: ['all'],
+        id: MENU_ID_PREFIX + CONTEXT_MENU_ID.RECORD_MOUSEMOVE,
+        parentId: MENU_ID_PREFIX,
+      })
+      chrome.contextMenus.create({
+        title: 'Record hover event on element',
+        contexts: ['all'],
+        id: MENU_ID_PREFIX + CONTEXT_MENU_ID.RECORD_HOVER,
+        parentId: MENU_ID_PREFIX,
+      })
+      chrome.contextMenus.create({
+        title: 'Copy element selector',
+        contexts: ['all'],
+        id: MENU_ID_PREFIX + CONTEXT_MENU_ID.COPY_SELECTOR,
+        parentId: MENU_ID_PREFIX,
+      })
       port.onMessage.addListener(msg => this.handlePopupMessage(msg))
     })
   }
@@ -78,7 +78,8 @@ class Background {
     this._hasGoto = false
     this._hasViewPort = false
 
-    await browser.injectContentScript()
+    const activeTab = await browser.getActiveTab()
+    await browser.injectContentScript(activeTab.id)
     this.toggleOverlay({ open: true, clear: true })
 
     chrome.contextMenus.update(MENU_ID_PREFIX, { enabled: true })
@@ -135,9 +136,7 @@ class Background {
     this._isPaused = false
     badge.reset()
 
-    return new Promise(function(resolve) {
-      chrome.storage.local.remove('recording', () => resolve())
-    })
+    return chrome.storage.local.remove('recording')
   }
 
   recordCurrentUrl(href) {
@@ -346,8 +345,8 @@ class Background {
     }
   }
 
-  async handleNavigation({ frameId }) {
-    await browser.injectContentScript()
+  async handleNavigation({ frameId, tabId }) {
+    await browser.injectContentScript(tabId)
     this.toggleOverlay({ open: true, pause: this._isPaused })
 
     if (frameId === 0) {
@@ -375,5 +374,5 @@ class Background {
   }
 }
 
-window.headlessRecorder = new Background()
-window.headlessRecorder.init()
+export const headlessRecorder = new Background()
+headlessRecorder.init()

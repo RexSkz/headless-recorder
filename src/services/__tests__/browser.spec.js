@@ -20,20 +20,16 @@ window.chrome = {
     executeScript: jest.fn((options, cb) => (cb(options))),
     sendMessage: jest.fn(),
   },
-  extension: {
-    connect: jest.fn(),
-  },
   runtime: {
-    openOptionsPage: jest.fn()
+    connect: jest.fn(),
+    openOptionsPage: jest.fn(),
   },
   cookies: {
     getAll: jest.fn((options, cb) => (cb(cookies)))
 }}
 
 global.navigator.permissions = {
-  query: jest
-    .fn()
-    .mockImplementationOnce(() => Promise.resolve({ state: 'granted' })),
+  query: jest.fn().mockImplementationOnce(() => Promise.resolve({ state: 'granted' })),
 };
 
 global.navigator.clipboard = {
@@ -42,7 +38,7 @@ global.navigator.clipboard = {
 
 beforeEach(() => {
   window?.chrome?.tabs.create.mockClear()
-  window?.chrome?.extension.connect.mockClear()
+  window?.chrome?.runtime.connect.mockClear()
   window?.chrome?.runtime.openOptionsPage.mockClear()
   window?.chrome?.tabs.query.mockClear()
 })
@@ -91,7 +87,7 @@ describe('openChecklyRunner', () => {
 describe('getBackgroundBus', () => {
   it('gets backgorund bus', async () => {
     browser.getBackgroundBus()
-    expect(window.chrome.extension.connect.mock.calls.length).toBe(1)
+    expect(window.chrome.runtime.connect.mock.calls.length).toBe(1)
   })
 })
 
@@ -108,5 +104,3 @@ describe('openHelpPage', () => {
     expect(window.chrome.tabs.create.mock.calls.length).toBe(1)
   })
 })
-
-

@@ -1,10 +1,12 @@
+import chrome from 'webextension-polyfill'
+
 export default {
   get(keys) {
     if (!chrome.storage || !chrome.storage.local) {
       return Promise.reject('Browser storage not available')
     }
 
-    return new Promise(resolve => chrome.storage.local.get(keys, props => resolve(props)))
+    return chrome.storage.local.get(keys)
   },
 
   set(props) {
@@ -12,7 +14,7 @@ export default {
       return Promise.reject('Browser storage not available')
     }
 
-    return new Promise(resolve => chrome.storage.local.set(props, res => resolve(res)))
+    return chrome.storage.local.set(props)
   },
 
   remove(keys) {
@@ -20,6 +22,6 @@ export default {
       return Promise.reject('Browser storage not available')
     }
 
-    return new Promise(resolve => chrome.storage.local.remove(keys, res => resolve(res)))
+    return chrome.storage.local.remove(keys)
   },
 }

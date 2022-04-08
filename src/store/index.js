@@ -1,3 +1,4 @@
+import chrome from 'webextension-polyfill'
 import { createStore } from 'vuex'
 
 import { overlayActions } from '@/modules/overlay/constants'

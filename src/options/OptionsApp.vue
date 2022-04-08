@@ -110,6 +110,7 @@
 </template>
 
 <script>
+import chrome from 'webextension-polyfill'
 import { version } from '../../package.json'
 
 import storage from '@/services/storage'

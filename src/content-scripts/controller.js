@@ -1,3 +1,4 @@
+import chrome from 'webextension-polyfill'
 import { overlayActions } from '@/modules/overlay/constants'
 import { popupActions, recordingControls, isDarkMode } from '@/services/constants'
 

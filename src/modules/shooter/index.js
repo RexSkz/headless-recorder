@@ -1,3 +1,4 @@
+import chrome from 'webextension-polyfill'
 import EventEmitter from 'events'
 import getSelector from '@/services/selector'
 import { overlayActions, overlaySelectors } from '@/modules/overlay/constants'

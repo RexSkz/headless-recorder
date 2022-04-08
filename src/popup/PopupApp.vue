@@ -120,6 +120,7 @@ export default {
 
   async mounted() {
     this.loadState()
+    debugger
     bus = browser.getBackgroundBus()
     this.isLoggedIn = await browser.getCookie()
   },

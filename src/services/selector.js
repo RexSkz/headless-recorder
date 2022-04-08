@@ -1,5 +1,7 @@
 import { finder } from '@medv/finder/finder.js'
 
+const restrictedClassNames = ['ssc-', 'ant-', 'rc-', 'el-', 'sc-']
+
 export default function selector(e, { dataAttribute } = {}) {
   if (dataAttribute && e.target.getAttribute(dataAttribute)) {
     return `[${dataAttribute}="${e.target.getAttribute(dataAttribute)}"]`
@@ -13,5 +15,6 @@ export default function selector(e, { dataAttribute } = {}) {
     seedMinLength: 5,
     optimizedMinLength: e.target.id ? 2 : 10,
     attr: name => name === dataAttribute,
+    className: name => restrictedClassNames.every(item => !name.startsWith(item)),
   })
 }

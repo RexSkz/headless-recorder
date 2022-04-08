@@ -27,9 +27,16 @@ module.exports = {
           },
         },
       },
+      manifestTransformer: manifest => {
+        delete manifest.content_security_policy
+        return manifest
+      },
     },
   },
   configureWebpack: {
-    devtool: 'cheap-module-source-map',
+    devtool: 'source-map',
+    optimization: {
+      minimize: false,
+    },
   },
 }

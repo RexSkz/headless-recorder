@@ -1,3 +1,5 @@
+import chrome from 'webextension-polyfill'
+
 const CONTENT_SCRIPT_PATH = 'js/content-script.js'
 const BASEURL = process.env.VUE_APP_JARVIS_HOST || 'https://jarvis.ssc.shopee.io'
 const RUN_URL = `${BASEURL}/test-case/create`
@@ -5,22 +7,20 @@ const DOCS_URL = `${BASEURL}/help/instruction`
 const SIGNUP_URL = `${BASEURL}/?from=Chrome+Extension`
 
 export default {
-  getActiveTab() {
-    return new Promise(function(resolve) {
-      chrome.tabs.query({ active: true, currentWindow: true }, ([tab]) => resolve(tab))
-    })
+  async getActiveTab() {
+    const tabs = await chrome.tabs.query({ active: true, currentWindow: true })
+    return tabs[0]
   },
 
   async sendTabMessage({ action, value, clean } = {}) {
     const tab = await this.getActiveTab()
-    chrome.tabs.sendMessage(tab.id, { action, value, clean })
+    return chrome.tabs.sendMessage(tab.id, { action, value, clean })
   },
 
-  injectContentScript() {
-    return new Promise(function(resolve) {
-      chrome.tabs.executeScript({ file: CONTENT_SCRIPT_PATH, allFrames: false }, res =>
-        resolve(res)
-      )
+  injectContentScript(tabId) {
+    return chrome.scripting.executeScript({
+      files: [CONTENT_SCRIPT_PATH],
+      target: { allFrames: true, tabId },
     })
   },
 
@@ -35,13 +35,11 @@ export default {
   },
 
   getCookie() {
-    return new Promise(function(resolve) {
-      chrome.cookies.getAll({}, res => resolve(res.find(cookie => cookie.name.startsWith('ssc_'))))
-    })
+    return chrome.cookies.getAll({}).then(res => res.find(cookie => cookie.name.startsWith('ssc_')))
   },
 
   getBackgroundBus() {
-    return chrome.extension.connect({ name: 'recordControls' })
+    return chrome.runtime.connect({ name: 'recordControls' })
   },
 
   openOptionsPage() {

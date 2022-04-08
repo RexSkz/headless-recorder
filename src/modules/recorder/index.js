@@ -1,3 +1,4 @@
+import chrome from 'webextension-polyfill'
 import getSelector from '@/services/selector'
 import { recordingControls } from '@/services/constants'
 import { overlaySelectors } from '@/modules/overlay/constants'
