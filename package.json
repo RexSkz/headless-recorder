@@ -15,7 +15,7 @@
     "@tailwindcss/postcss7-compat": "2.0.2",
     "@vueuse/core": "4.0.8",
     "autoprefixer": "9",
-    "core-js": "3.6.5",
+    "core-js": "3.21.1",
     "css-selector-generator": "3.0.1",
     "lodash": "4.17.21",
     "pinia": "2.0.0-beta.3",
